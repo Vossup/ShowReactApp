@@ -1,26 +1,32 @@
 import { pool } from './mysql-pool';
 
-class StudentService {
-  getStudents(success) {
-    pool.query('SELECT * FROM Students', (error, results) => {
-      if (error) return console.error(error);
-
-      success(results);
-    });
+class ShowService {
+  getShows() {
+    return new Promise( (resolve, reject) =>{
+      pool.query('SELECT * FROM Shows', (error, results) => {
+        if (error) reject(console.error(error));
+  
+        resolve(results);
+      });
+    })
   }
 
-  getStudent(id, success) {
-    pool.query('SELECT * FROM Students WHERE id=?', [id], (error, results) => {
-      if (error) return console.error(error);
-
-      success(results[0]);
-    });
+  getShow(id) {
+    return new Promise ( (resolve) =>{
+      pool.query('SELECT * FROM Shows WHERE id=?',
+      [id],
+      (error, results) =>{
+        if (error){return console.error(error);}
+  
+        resolve(results[0]);
+      });
+    })
   }
 
-  updateStudent(student, success) {
+  updateShow(show, success) {
     pool.query(
-      'UPDATE Students SET name=?, email=? WHERE id=?',
-      [student.name, student.email, student.id],
+      'UPDATE Shows SET title=?, description=? WHERE id=?',
+      [show.title, show.description, show.showId],
       (error, results) => {
         if (error) return console.error(error);
 
@@ -29,4 +35,4 @@ class StudentService {
     );
   }
 }
-export let studentService = new StudentService();
+export let showService = new ShowService();

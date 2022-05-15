@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Component } from 'react-simplified';
 import ReactDOM from 'react-dom';
 import { NavLink, HashRouter, Route } from 'react-router-dom';
-import { studentService } from './services';
+import { showService } from './services';
 import { Alert, Card, Row, Column, NavBar, Button, Form } from './widgets';
 import { createHashHistory } from 'history';
 
@@ -11,8 +11,7 @@ const history = createHashHistory(); // Use history.push(...) to programmaticall
 class Menu extends Component {
   render() {
     return (
-      <NavBar brand="StudAdm">
-        <NavBar.Link to="/students">Students</NavBar.Link>
+      <NavBar brand="Home Screen">
       </NavBar>
     );
   }
@@ -20,20 +19,25 @@ class Menu extends Component {
 
 class Home extends Component {
   render() {
-    return <Card title="Welcome">Welcome to StudAdm</Card>;
+    return(
+      <div>
+        <Card title="Welcome">Welcome to the Show</Card>;
+        <ShowList />
+      </div>
+    )
   }
 }
 
-class StudentList extends Component {
-  students = [];
+class ShowList extends Component {
+  shows = [];
 
   render() {
     return (
-      <Card title="Students">
-        {this.students.map((student) => (
-          <Row key={student.id}>
+      <Card title="Shows">
+        {this.shows.map((show) => (
+          <Row key={show.id}>
             <Column>
-              <NavLink to={'/students/' + student.id}>{student.name}</NavLink>
+              <NavLink to={'/shows/' + show.id}>{show.title}</NavLink>
             </Column>
           </Row>
         ))}
@@ -42,28 +46,33 @@ class StudentList extends Component {
   }
 
   mounted() {
-    studentService.getStudents((students) => {
-      this.students = students;
-    });
+    (async () =>{
+      try{
+        let res = await showService.getShows();
+        this.shows = res;
+      }catch{
+        console.log('nope');
+      }
+    })();
   }
 }
 
-class StudentDetails extends Component {
-  student = null;
+class ShowDetails extends Component {
+  show = null;
 
   render() {
-    if (!this.student) return null;
+    if (!this.show) return null;
 
     return (
       <div>
-        <Card title="Student details">
+        <Card title="Show details">
           <Row>
-            <Column width={2}>Name:</Column>
-            <Column>{this.student.name}</Column>
+            <Column width={2}>Title:</Column>
+            <Column>{this.show.title}</Column>
           </Row>
           <Row>
-            <Column width={2}>Email:</Column>
-            <Column>{this.student.email}</Column>
+            <Column width={2}>Description:</Column>
+            <Column>{this.show.description}</Column>
           </Row>
         </Card>
         <Button.Light onClick={this.edit}>Edit</Button.Light>
@@ -72,36 +81,39 @@ class StudentDetails extends Component {
   }
 
   mounted() {
-    studentService.getStudent(this.props.match.params.id, (student) => {
-      this.student = student;
-    });
+    let id = this.props.match.params.id;
+    console.log(id);
+    (async () =>{
+      const res = await showService.getShow(id);
+      this.show = res;
+    })();
   }
 
   edit() {
-    history.push('/students/' + this.student.id + '/edit');
+    history.push('/shows/' + this.show.id + '/edit');
   }
 }
 
-class StudentEdit extends Component {
-  student = null;
+class ShowEdit extends Component {
+  show = null;
 
   render() {
-    if (!this.student) return null;
+    if (!this.show) return null;
 
     return (
       <div>
-        <Card title="Edit student">
-          <Form.Label>Name:</Form.Label>
+        <Card title="Edit show">
+          <Form.Label>Title:</Form.Label>
           <Form.Input
             type="text"
-            value={this.student.name}
-            onChange={(event) => (this.student.name = event.currentTarget.value)}
+            value={this.show.title}
+            onChange={(event) => (this.show.title = event.currentTarget.value)}
           />
-          <Form.Label>Email:</Form.Label>
+          <Form.Label>Description:</Form.Label>
           <Form.Input
             type="text"
-            value={this.student.email}
-            onChange={(event) => (this.student.email = event.currentTarget.value)}
+            value={this.show.description}
+            onChange={(event) => (this.show.description = event.currentTarget.value)}
           />
         </Card>
         <Row>
@@ -117,10 +129,12 @@ class StudentEdit extends Component {
   }
 
   mounted() {
-    studentService.getStudent(this.props.match.params.id, (student) => {
-      this.student = student;
-    });
-  }
+    let id = this.props.match.params.id;
+    (async () => {
+      const res = await showService.getShow(id);
+      this.show = res;
+      })();
+    }
 
   save() {
     studentService.updateStudent(this.student, () => {
@@ -140,9 +154,9 @@ ReactDOM.render(
       <div>
         <Menu />
         <Route exact path="/" component={Home} />
-        <Route exact path="/students" component={StudentList} />
-        <Route exact path="/students/:id" component={StudentDetails} />
-        <Route exact path="/students/:id/edit" component={StudentEdit} />
+        <Route exact path="/shows" component={ShowList} />
+        <Route exact path="/shows/:id" component={ShowDetails} />
+        <Route exact path="/shows/:id/edit" component={ShowEdit} />
       </div>
     </HashRouter>
   </div>,

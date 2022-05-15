@@ -17,8 +17,8 @@ const electronReload = require('./electron-reload')(path.join(__dirname, 'src'),
 let mainWindow;
 app.on('ready', () => {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1350,
+    height: 900,
     webPreferences: { nodeIntegration: true, contextIsolation: false },
   });
 
