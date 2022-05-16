@@ -47,12 +47,8 @@ class ShowList extends Component {
 
   mounted() {
     (async () =>{
-      try{
-        let res = await showService.getShows();
-        this.shows = res;
-      }catch{
-        console.log('nope');
-      }
+      let res = await showService.getShows().catch(err => console.error(err));
+      this.shows = res;
     })();
   }
 }

@@ -4,7 +4,7 @@ class ShowService {
   getShows() {
     return new Promise( (resolve, reject) =>{
       pool.query('SELECT * FROM Shows', (error, results) => {
-        if (error) reject(console.error(error));
+        if (error) reject(error);
   
         resolve(results);
       });
